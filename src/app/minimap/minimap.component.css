@@ -1,0 +1,42 @@
+.minimap {
+    display: flex;
+}
+#minimap-option {
+    display: flex; 
+    background: #fff; 
+    margin-right: 20px; 
+    border-radius: 5px; 
+    padding-bottom: 10px;
+    opacity: 0;
+    position: absolute;
+    right: 100%;
+    top:0;
+}
+#minimap-show {
+    width: 60px; 
+    height: 60px; 
+    background: green; 
+    border-radius: 5px; 
+    cursor: pointer;
+    position: relative;
+}
+#minimap-show:hover{
+    border: 2px solid #fff;
+}
+#minimap-show:hover  #minimap-option {
+    opacity: 1 !important;
+}
+.minimap-satellite > img:hover {
+    border: 2px solid #fff;
+    border-radius: 5px;
+}
+.minimap-satellite:hover p {
+    color: blue !important;
+}
+.minimap-hybird > img:hover {
+    border: 2px solid #fff;
+    border-radius: 5px;
+}
+.minimap-hybird:hover p {
+    color: blue !important;
+}

@@ -1,0 +1,28 @@
+#map {
+    height: 100%;
+    padding: 0;
+  }
+
+::ng-deep #map div:nth-child(3) .leaflet-left {
+    right: 15px;
+    left: auto !important;
+    margin-top: 200px;
+}
+::ng-deep .p-sidebar .p-sidebar-header {
+  padding: 0 !important;
+}
+::ng-deep .p-sidebar-content {
+  padding: 0 !important;
+}
+::ng-deep .p-sidebar-header {
+  display: none !important;
+}
+p-sidebar h2 {
+  padding-left: 20px;
+  color: blue;
+}
+::ng-deep p-autocomplete span input {
+    width: 400px;
+}
+
+  

@@ -1,0 +1,24 @@
+<div id="map" style="position: relative;"></div>
+    <div style="position: absolute; z-index: 2000; top: 0;">
+        <p-sidebar [(visible)]="visibleSidebar1">
+            <h1 style="width: 100%; padding: 20px 0; margin: 0 ;background-color: #2196f3; text-align: center; color: #fff;">VIETMAP</h1>
+            <h2>Trang Chủ</h2> <hr>
+            <h2>Tài Liệu</h2> <hr>
+            <h2>Điều Khoản</h2> <hr>
+            <h2>Liên hệ</h2> <hr>
+        </p-sidebar>
+        <div style="padding: 5px; margin: 5px; background: #2196f3; display: flex; align-items: center;">
+            <p-button type="button" class="p-mr-2" (click)="visibleSidebar1 = true" icon="pi pi-align-justify" ></p-button>
+            <span class="p-input-icon-left " style="width: 100%;">
+                <p-autoComplete [showEmptyMessage]="true" [suggestions]="dataSearch" (completeMethod)="onChangeSearch($event)" field="name" [minLength]="1" (onSelect)="selectAdd($event)"></p-autoComplete>
+                <!-- <input type="text" pInputText placeholder="Search" style="width: 400px; " (completeMethod)="onChangeSearch($event)" autocomplete="dataSearch" /> -->
+                <i class="pi pi-search" style="margin-left: 365px;"></i>
+            </span>
+            <span>
+                <img src="https://maps.vietmap.vn/live/assets/icon/direction.png" width="30px" alt="" style="cursor: pointer;">
+            </span>
+        </div>
+    </div>
+<div style="z-index: 2000; position: absolute; bottom: 40px; right: 16px;">
+    <app-minimap   [map] = "map" (changeBaseMap)="changeBaseMap($event)" ></app-minimap>
+</div>

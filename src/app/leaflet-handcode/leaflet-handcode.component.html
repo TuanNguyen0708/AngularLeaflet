@@ -1,0 +1,39 @@
+<div id="map">
+    <div style="display: flex; justify-content: end;">
+        <div style="width: 150px; border: 1px solid #000; margin-right: 20px; margin-top: 20px; z-index: 200000; background-color: #fff; border-radius: 5px;">
+            <div>
+                <h3 style="text-align: center;">Title</h3>
+                <hr>
+                <div>
+                    <input type="radio" value="VietMap" name="title" (click)="click(1)" checked>
+                    <label> VietMap</label>
+                </div>
+                <div>
+                    <input type="radio" value="Hybird" name="title" (click)="click(2)" >
+                    <label> Hybird</label>
+                </div>
+                <div>
+                    <input type="radio" value="VeTinh" name="title" (click)="click(3)">
+                    <label> Vệ tinh</label>
+                </div>
+            </div>
+            <hr>
+            <div style="padding-bottom: 10px;">
+                <h3 style="text-align: center;">Cities</h3>
+                <hr>
+                <div>
+                    <input type="checkbox" name="title" (click)="cities($event.target,4)">
+                        <label> Circle</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="title" (click)="cities($event.target,5)" >
+                        <label> Polygon</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="title" (click)="cities($event.target,6)">
+                        <label> Polyline</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
