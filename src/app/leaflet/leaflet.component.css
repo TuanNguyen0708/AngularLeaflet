@@ -25,4 +25,9 @@ p-sidebar h2 {
     width: 400px;
 }
 
-  
+::ng-deep .sidebarTop div:first-child {
+  width: 500px;
+  top: 5px;
+  left: 5px;
+  height: 98%
+}

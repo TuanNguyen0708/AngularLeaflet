@@ -1,39 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 // import * as L from 'leaflet';
 import { catchError } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
 
-
 declare var require: any
-declare let L:any;
+declare let L: any;
+
 @Component({
     selector: 'app-leaflet',
     templateUrl: './leaflet.component.html',
     styleUrls: ['./leaflet.component.css']
 })
-
 export class LeafletComponent implements OnInit {
+    // var app = this
+    @HostListener("contextmenu", ["$event"])
+    public onClick(event: any): void {
 
+    }
+    @HostListener("click", ["$event"])
+    public onClick2(e: any): void {
+        console.log(e, 'event');
+        if (e.target.id == '2') {
 
-    // arrMarker: Array<any> = [
-    //   {"x" : 10.794019130536723, "y" : 106.71415328979494 ,"name": "Tp.HCM", "address": "Quận 1", "id" : 1},
-    //   {"x" : 10.79511518544009, "y" :  106.70745849609376 ,"name": "Tp.HCM", "address": "Quận 2", "id" : 2},
-    //   {"x" : 10.793091696342358, "y" : 106.69715881347658 ,"name": "Tp.HCM", "address": "Quận 3", "id" : 3},
-    //   {"x" : 10.778168043677475, "y" : 106.7011070251465 ,"name": "Tp.HCM", "address": "Quận 4", "id" : 4},
-    //   {"x" : 10.77606012346712, "y" :  106.69089317321779 ,"name": "Tp.HCM", "address": "Quận 5", "id" : 5},
-    //   {"x" : 10.769483317557109, "y" : 106.68771743774415 ,"name": "Tp.HCM", "address": "Quận 6", "id" : 6},
-    //   {"x" : 10.76450845871857 , "y" : 106.68600082397462 ,"name": "Tp.HCM", "address": "Quận 7", "id" : 7},
-    //   {"x" : 10.763496612971204 , "y" : 106.69398307800294 ,"name": "Tp.HCM", "address": "Quận 8", "id" : 8},
-    //   {"x" : 10.76147291128591 , "y" : 106.70119285583498 ,"name": "Tp.HCM", "address": "Quận 9", "id" : 9},
-    //   {"x" : 10.759870804483496 , "y" : 106.68934822082521 ,"name": "Tp.HCM", "address": "Quận 10", "id" : 10},
-    //   {"x" : 10.76383389526445 , "y" : 106.66033744812013 ,"name": "Tp.HCM", "address": "Quận 11", "id" : 11},
-    //   {"x" : 10.773361964060282 , "y" : 106.64308547973634 ,"name": "Tp.HCM", "address": "Quận 12", "id" : 12},
-    //   {"x" : 10.790562315812565 , "y" : 106.63681983947754 ,"name": "Tp.HCM", "address": "Quận 13", "id" : 13},
-    //   {"x" : 10.784913289130628 , "y" : 106.61845207214357 ,"name": "Tp.HCM", "address": "Quận 14", "id" : 14},
-    //   {"x" : 10.784154456566759 , "y" : 106.59956932067873 , "name": "Tp.HCM", "address": "Quận 15","id" : 15},
-    //   {"x" : 10.777409194102281 , "y" : 106.59072875976564 ,"name": "Tp.HCM", "address": "Quận 16", "id" : 16},
-    //   {"x" : 22.3884335025448 , "y" : 105.368108174232 ,"name": "Tp.Hà Nội", "address": "Quận Hoàn Kiếm", "id" : 17},
-    // ]
+            this.routerMap()
+        } else if (e.target.id == '5') {
+            this.routerMap()
+        }
+        this.map.closePopup();
+
+    }
 
 
     visibleSidebar1: any;
@@ -48,20 +43,20 @@ export class LeafletComponent implements OnInit {
     satellite: any;
     hybird: any;
     circleMap: any;
+    rectangleMap: any;
     polygonMap: any;
     polylineMap: any;
     featureGroup: any;
     dataSearch: any[] = []
-    dataRouting:any;
-    drawPolyline:any;
-    polylineDecode:any;
-    printMarkerLocation:any
-    startPoint:any;
-    endPoint:any;
-    arrMarker:any[] = []
-    id:number = 0
-
-
+    dataRouting: any;
+    drawPolyline: any;
+    polylineDecode: any;
+    printMarkerLocation: any
+    startPoint: any;
+    endPoint: any;
+    arrMarker: any[] = []
+    id: number = 0;
+    markers: any = {}
 
     ngOnInit() {
         this.initMap();
@@ -86,7 +81,13 @@ export class LeafletComponent implements OnInit {
             maxNativeZoom: 20
         });
 
-        this.map = L.map('map', { zoomControl: false }).setView([10, 106], 10)
+        var myRenderer = L.canvas({ tolerance: 10 });
+
+        this.map = L.map('map', {
+            zoomControl: false,
+            renderer: L.canvas()
+
+        }).setView([10.7121409871872, 106.57287597656251], 12)
         this.VietMap.addTo(this.map)
 
         this.featureGroup = L.featureGroup().addTo(this.map);
@@ -96,8 +97,18 @@ export class LeafletComponent implements OnInit {
             color: 'red',
             fillColor: '#f03',
             fillOpacity: 0.5,
-            radius: 500
-        }).on("click", function (e:any) {
+            radius: 500,
+            renderer: myRenderer
+        }).on("click", function (e: any) {
+            e.target.setStyle({ fillColor: 'green', color: 'green' })
+        })
+
+        //hàm này để tạo hình chữ nhật
+        this.rectangleMap = L.rectangle([[10.7629693011603, 106.53047821848837], [10.744998909981234, 106.557251591558]], {
+            color: "#ff7800",
+            weight: 1,
+            renderer: myRenderer
+        }).on("click", function (e: any) {
             e.target.setStyle({ fillColor: 'green', color: 'green' })
         })
 
@@ -107,7 +118,9 @@ export class LeafletComponent implements OnInit {
             [10.7121409871872, 106.57287597656251],
             [10.692490305822185, 106.55296325683595],
             [10.696285601021225, 106.57442092895509]
-        ]).on("click", function (e:any) {
+        ], {
+            renderer: myRenderer
+        }).on("click", function (e: any) {
             e.target.setStyle({ fillColor: 'green', color: 'green' })
         })
 
@@ -118,11 +131,9 @@ export class LeafletComponent implements OnInit {
         [10.713237339606419, 106.50558471679689],
         [10.703201350159523, 106.5256690979004],
         [10.704382072052141, 106.55030250549316],
-        ]).on("click", function (e:any) {
+        ]).on("click", function (e: any) {
             e.target.setStyle({ fillColor: 'green', color: 'green' })
         });
-
-
 
         // var a = this
         // for(let i = 0; i < this.arrMarker.length; i++){
@@ -172,101 +183,149 @@ export class LeafletComponent implements OnInit {
         //    icon = iconMap
         // }
 
-        
+        let a = this
 
-        var a = this
-      
-        //Hàm này để tạo market khi chúng ta click vào bất kì điểm này trên map
-        a.map.on('click', function (e: any) {
-                console.log(e);
-                
-                // hàm này là routing map (hiểm thị đường đi giữa 2 điểm được chấm trên bản đồ)
-                if(a.startPoint == null && a.endPoint == null){
-                    a.startPoint = [e.latlng.lat, e.latlng.lng]
-                } else if (a.startPoint !=null && a.endPoint == null){
-                    a.endPoint = [e.latlng.lat, e.latlng.lng]
-                }
-                routerMap();
-                let markers = L.marker([e.latlng.lat, e.latlng.lng], {
-                    myCustomId: a.id += 1,
-                    icon: L.icon({
-                                iconSize: [ 30, 40 ],
-                                iconAnchor: [ 15, 0 ],
-                                iconUrl: 'https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png',
-                                shadowUrl: 'leaflet/marker-shadow.png',
-                              }),
-                    draggable: true,
-                }).on('click', function(e:any) {
-                    console.log(e, 'e');
-                    
-                })
-                a.arrMarker.push(markers)
-                console.log(a.arrMarker);
-                    
-                
-                markers.on('dragend', function(e:any) {
-                    
-                    console.log(e,'drag');
-                    if(e.target.options.myCustomId == 1){
-                        a.startPoint = [e.target._latlng.lat, e.target._latlng.lng]
-                        markers.bindPopup("day la diem bat dau")
-                    } else {
-                    a.endPoint = [e.target._latlng.lat, e.target._latlng.lng]
-
-                        markers.bindPopup("day la diem ket thuc")
-                    }
-                    routerMap()
-
-                    var latlng = e.target.getLatLng();
-                    console.log(latlng);
-                    console.log(latlng.lat, latlng.lng)
-                }).addTo(a.map)
-               
-        })
-        
-        for (let i = 0; i < 50; i++) {
-            var icon: any
-            // hàm này để tạo popup khi chúng ta click vào marker
-            // const popupClick = L.popup().setContent(
-            //   `
-            //   <div style="text-align: center">
-            //     <p>Tọa Độ: (${icon[i].NewClass._latlng.lat}, ${icon[i].NewClass._latlng.lng})</p>
-            //   </div>
-            //   `
-            //   )
-            //   icon.bindPopup(popupClick)
-            // var app = this;
-            icon = L.marker([10.794019130536723 + 0.5 * (Math.random() - 0.5), 106.71415328979494 + 0.5 * (Math.random() - 0.5)], {
-                draggable: true,
+        this.map.on('contextmenu', (e: any) => {
+            var idMarker = a.id += 1;
+            a.markers[idMarker] = L.marker([e.latlng.lat, e.latlng.lng], {
+                myCustomId: idMarker,
                 icon: L.icon({
                     iconSize: [30, 40],
-                    iconAnchor: [15, 0],
+                    iconAnchor: [15, 30],
                     iconUrl: 'https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png',
                     shadowUrl: 'leaflet/marker-shadow.png',
-                })
-            }).addTo(this.featureGroup).on("click", function (e:any) {
-                for (let i = 0; i < 50; i++) {
-                    if (a.markerSelected) {
-                        a.markerSelected.setIcon(
-                            L.icon({
-                                iconUrl: "https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png"
-                            })
-                        )
-                    }
-                    if (a.markerSelected = e.target) {
-                        a.markerSelected.setIcon(
-                            L.icon({
-                                iconUrl: "leaflet/marker-icon.png"
-                            })
-                        )
-                    }
-                }
-            })
-        }
-        //hàm này để set view toàn bộ marker khi load lần đầu tiên vào trang web
-        let bounds = this.featureGroup.getBounds();
-        this.map.fitBounds(bounds);
+                }),
+                draggable: true,
+            }).on('click', function (e: any) {
+                // console.log(e, 'e');
 
+            }).on('dragend', function (e: any) {
+                a.polylineMap.removeFrom(a.map)
+                a.routerMap()
+
+            }).addTo(a.map)
+            if (a.startPoint == null && a.endPoint == null) {
+                a.startPoint = [e.latlng.lat, e.latlng.lng]
+                var pop = L.popup({ autoClose: true, closeOnClick: true })
+                    .setContent(
+                        `<p style="font-weight:bold">Thao tác trên địa điểm</p>
+                    <p id = "1" style="cursor: pointer">Đây là đâu?</p>
+                    <a id = "2" style="cursor: pointer">Dẫn đường từ đây</a>
+                    <p id = "3" style="cursor: pointer">Dẫn đường tới đây</p>
+                    <p id = "4" style="cursor: pointer">Tìm kiếm xung quanh</p>
+                    `);
+                a.markers[idMarker].bindPopup(pop);
+                a.markers[idMarker].openPopup();
+
+            } else if (a.startPoint != null && a.endPoint == null) {
+                a.endPoint = [e.latlng.lat, e.latlng.lng]
+                var pop = L.popup()
+                    .setContent(
+                        `<p style="font-weight:bold">Thao tác trên địa điểm</p>
+                    <p id = "1" style="cursor: pointer">Đây là đâu?</p>
+                    <a id = "5" style="cursor: pointer">Thêm điểm đến</a>
+                    <p id = "4" style="cursor: pointer">Tìm kiếm xung quanh</p>
+                    `)
+                a.markers[idMarker].bindPopup(pop);
+                a.markers[idMarker].openPopup();
+
+
+            } else {
+                a.startPoint = a.endPoint
+                a.endPoint = [e.latlng.lat, e.latlng.lng]
+                var pop = L.popup()
+                    .setContent(
+                        `<p style="font-weight:bold">Thao tác trên địa điểm</p>
+                    <p id = "1" style="cursor: pointer">Đây là đâu?</p>
+                    <a id = "5" style="cursor: pointer">Thêm điểm đến</a>
+                    <p id = "4" style="cursor: pointer">Tìm kiếm xung quanh</p>
+                    `)
+                a.markers[idMarker].bindPopup(pop);
+                a.markers[idMarker].openPopup();
+            }
+
+        })
+
+        //Hàm này để tạo market khi chúng ta click vào bất kì điểm này trên map
+        this.map.on('click', function (e: any) {
+
+            // hàm này là routing map (hiểm thị đường đi giữa 2 điểm được chấm trên bản đồ)
+            if (a.startPoint == null && a.endPoint == null) {
+                a.startPoint = [e.latlng.lat, e.latlng.lng]
+
+            } else if (a.startPoint != null && a.endPoint == null) {
+                a.endPoint = [e.latlng.lat, e.latlng.lng]
+
+            } else {
+                a.startPoint = a.endPoint
+                a.endPoint = [e.latlng.lat, e.latlng.lng]
+            }
+            a.markers[a.id += 1] = L.marker([e.latlng.lat, e.latlng.lng], {
+                myCustomId: a.id += 1,
+                icon: L.icon({
+                    iconSize: [30, 40],
+                    iconAnchor: [15, 30],
+                    iconUrl: 'https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png',
+                    shadowUrl: 'leaflet/marker-shadow.png',
+                }),
+                draggable: true,
+            }).on('click', function (e: any) {
+                // console.log(e, 'e');
+
+            }).on('dragend', function (e: any) {
+
+
+                a.routerMap()
+                a.polylineMap.removeFrom(a.map)
+
+            }).addTo(a.map)
+            a.routerMap();
+        })
+
+        // for (let i = 0; i < 50; i++) {
+        //     var icon: any
+        //     // hàm này để tạo popup khi chúng ta click vào marker
+        //     // const popupClick = L.popup().setContent(
+        //     //   `
+        //     //   <div style="text-align: center">
+        //     //     <p>Tọa Độ: (${icon[i].NewClass._latlng.lat}, ${icon[i].NewClass._latlng.lng})</p>
+        //     //   </div>
+        //     //   `
+        //     //   )
+        //     //   icon.bindPopup(popupClick)
+        //     // var app = this;
+        //     icon = L.marker([10.794019130536723 + 0.5 * (Math.random() - 0.5), 106.71415328979494 + 0.5 * (Math.random() - 0.5)], {
+        //         draggable: true,
+        //         icon: L.icon({
+        //             iconSize: [30, 40],
+        //             iconAnchor: [15, 0],
+        //             iconUrl: 'https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png',
+        //             shadowUrl: 'leaflet/marker-shadow.png',
+        //         })
+        //     }).addTo(this.featureGroup).on("click", function (e:any) {
+        //         for (let i = 0; i < 50; i++) {
+        //             if (a.markerSelected) {
+        //                 a.markerSelected.setIcon(
+        //                     L.icon({
+        //                         iconUrl: "https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png"
+        //                     })
+        //                 )
+        //             }
+        //             if (a.markerSelected = e.target) {
+        //                 a.markerSelected.setIcon(
+        //                     L.icon({
+        //                         iconUrl: "leaflet/marker-icon.png"
+        //                     })
+        //                 )
+        //             }
+        //         }
+        //     })
+        // }
+
+
+        // //hàm này để set view toàn bộ marker khi load lần đầu tiên vào trang web
+        // let bounds = this.featureGroup.getBounds();
+        // this.map.fitBounds(bounds);
 
         const BaseMap = {
             "VietMap": this.VietMap,
@@ -276,29 +335,28 @@ export class LeafletComponent implements OnInit {
 
         const cities = {
             "Circle": this.circleMap,
+            "Rectangle": this.rectangleMap,
             "Polygon": this.polygonMap,
             "Poliline": this.polylineMap,
             "icon": this.featureGroup
         }
-        L.control.layers(BaseMap, cities, bounds).addTo(this.map);
+        L.control.layers(BaseMap, cities).addTo(this.map);
 
-        function routerMap() {
-            a.apiService.routerMap(a.startPoint, a.endPoint).pipe(
+
+
+        function routerMap2(param: string) {
+            a.apiService.routerMap2(param).pipe(
                 catchError((err, caught) => {
                     return (err);
                 })
             ).subscribe((res: any) => {
-                console.log(res);
                 if (res.code == "OK") {
-                    // a.polylineDecode(res.paths);
                     let polyUtil = require('polyline-encoded');
                     let latlngs = [];
                     if (res.paths[0].points != undefined) {
                         latlngs = polyUtil.decode(res.paths[0].points);
-                        console.log(latlngs);
                     }
                     a.polylineMap = L.polyline([latlngs]).addTo(a.map);
-
 
                 }
             });
@@ -306,6 +364,49 @@ export class LeafletComponent implements OnInit {
     }
 
 
+    routerMap() {
+        this.map.closePopup();
+        //hàm này để tạo ra list điểm cần routing
+        let listMarker = [];
+        let keys = Object.keys(this.markers);
+        for (let key of keys) {
+            listMarker.push(this.markers[key].getLatLng());
+        }
+        console.log(listMarker)
+        let param = ''
+        let paramStart = ''
+        let paramEnd = ''
+
+
+        //hàm này dùng để nối điểm routing lại và kéo thả trên map
+        for (let i = 0; i < listMarker.length; i++) {
+            if (i == 0) {
+                paramStart = 'point=' + [listMarker[0].lat, listMarker[0].lng].toString()
+
+            } else {
+                paramEnd += '&point=' + [listMarker[i].lat, listMarker[i].lng].toString()
+            }
+            //paramEnd += '&point=' + [listMarker[i].lat, listMarker[i].lng].toString()
+        }
+        param = paramStart + paramEnd
+        console.log(param, 'param');
+
+        //call api
+        this.apiService.routerMap2(param).pipe(
+            catchError((err, caught) => {
+                return (err);
+            })
+        ).subscribe((res: any) => {
+            if (res.code == "OK") {
+                let polyUtil = require('polyline-encoded');
+                let latlngs = [];
+                if (res.paths[0].points != undefined) {
+                    latlngs = polyUtil.decode(res.paths[0].points);
+                }
+                this.polylineMap = L.polyline([latlngs]).addTo(this.map);
+            }
+        });
+    }
 
     changeBaseMap(e: number) {
         if (e == 1) {
@@ -374,59 +475,11 @@ export class LeafletComponent implements OnInit {
             if (res !== null) {
                 console.log(res);
                 localStorage.setItem('dataMarker', JSON.stringify(res));
-                this.map.panTo([res.latitude,res.longitude])
+                this.map.panTo([res.latitude, res.longitude])
             }
         });
 
     }
-
 }
 
 
-
-
-
-
-// $(function() {
-//     // use below if you want to specify the path for leaflet's images
-//     //L.Icon.Default.imagePath = '@Url.Content("~/Content/img/leaflet")';
-  
-//     var curLocation = [0, 0];
-//     // use below if you have a model
-//     // var curLocation = [@Model.Location.Latitude, @Model.Location.Longitude];
-  
-//     if (curLocation[0] == 0 && curLocation[1] == 0) {
-//       curLocation = [5.9714, 116.0953];
-//     }
-  
-//     var map = L.map('MapLocation').setView(curLocation, 10);
-  
-//     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-//       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-//     }).addTo(map);
-  
-//     map.attributionControl.setPrefix(false);
-  
-//     var marker = new L.marker(curLocation, {
-//       draggable: 'true'
-//     });
-  
-//     marker.on('dragend', function(event) {
-//       var position = marker.getLatLng();
-//       marker.setLatLng(position, {
-//         draggable: 'true'
-//       }).bindPopup(position).update();
-//       $("#Latitude").val(position.lat);
-//       $("#Longitude").val(position.lng).keyup();
-//     });
-  
-//     $("#Latitude, #Longitude").change(function() {
-//       var position = [parseInt($("#Latitude").val()), parseInt($("#Longitude").val())];
-//       marker.setLatLng(position, {
-//         draggable: 'true'
-//       }).bindPopup(position).update();
-//       map.panTo(position);
-//     });
-  
-//     map.addLayer(marker);
-//   })

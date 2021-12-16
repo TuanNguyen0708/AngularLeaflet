@@ -7,14 +7,18 @@
             <h2>Điều Khoản</h2> <hr>
             <h2>Liên hệ</h2> <hr>
         </p-sidebar>
+        
         <div style="padding: 5px; margin: 5px; background: #2196f3; display: flex; align-items: center;">
+            <p-sidebar [(visible)]="visibleSidebar3" position="top" class="sidebarTop" style="z-index: 2001;">
+                <h3>Top Sidebar</h3>
+            </p-sidebar>
+           
             <p-button type="button" class="p-mr-2" (click)="visibleSidebar1 = true" icon="pi pi-align-justify" ></p-button>
             <span class="p-input-icon-left " style="width: 100%;">
                 <p-autoComplete [showEmptyMessage]="true" [suggestions]="dataSearch" (completeMethod)="onChangeSearch($event)" field="name" [minLength]="1" (onSelect)="selectAdd($event)"></p-autoComplete>
-                <!-- <input type="text" pInputText placeholder="Search" style="width: 400px; " (completeMethod)="onChangeSearch($event)" autocomplete="dataSearch" /> -->
                 <i class="pi pi-search" style="margin-left: 365px;"></i>
             </span>
-            <span>
+            <span (click)="visibleSidebar3 = true">
                 <img src="https://maps.vietmap.vn/live/assets/icon/direction.png" width="30px" alt="" style="cursor: pointer;">
             </span>
         </div>
