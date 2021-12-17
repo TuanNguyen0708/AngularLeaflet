@@ -13,23 +13,6 @@ declare let L: any;
 })
 export class LeafletComponent implements OnInit {
     // var app = this
-    @HostListener("contextmenu", ["$event"])
-    public onClick(event: any): void {
-
-    }
-    @HostListener("click", ["$event"])
-    public onClick2(e: any): void {
-        console.log(e, 'event');
-        if (e.target.id == '2') {
-
-            this.routerMap()
-        } else if (e.target.id == '5') {
-            this.routerMap()
-        }
-        this.map.closePopup();
-
-    }
-
 
     visibleSidebar1: any;
     visibleSidebar2: any;
@@ -56,11 +39,73 @@ export class LeafletComponent implements OnInit {
     endPoint: any;
     arrMarker: any[] = []
     id: number = 0;
-    markers: any = {}
+    markers: any = {};
+    idMarker: any;
+    listMarker: any;
+
+    @HostListener("contextmenu", ["$event"])
+    public onClick(event: any): void {
+        console.log(event, 'event');
+    }
+    @HostListener("click", ["$event"])
+    public onClick2(e: any): void {
+        if(this.markerSelected){
+            this.map.removeLayer(this.markerSelected);
+        }
+        var app = this;
+        if (e.target.id == '2') {
+            this.map.removeLayer(this.featureGroup)
+            let latlng = [this.markerSelected._latlng.lat, this.markerSelected._latlng.lng]
+            this.markers[this.id += 1] = L.marker(latlng, {
+                myCustomId: this.idMarker,
+                icon: L.icon({
+                    iconSize: [30, 40],
+                    iconAnchor: [15, 30],
+                    popupAnchor: [0, -15],
+                    iconUrl: 'https://maps.vietmap.vn/live/assets/icon/marker-start.png',
+                    shadowUrl: 'leaflet/marker-shadow.png',
+                }),
+                draggable: true,
+            }).on('click', function (e: any) {
+                // console.log(e, 'e');
+
+            }).on('dragend', function (e: any) {
+                app.routerMap()
+                app.polylineMap.removeFrom(app.map)
+            }).addTo(this.map)
+            this.routerMap()
+            this.polylineMap.removeFrom(this.map)
+        } else if (e.target.id == '5') {
+            this.map.removeLayer(this.featureGroup)
+            let latlng = [this.markerSelected._latlng.lat, this.markerSelected._latlng.lng]
+            this.markers[this.id += 1] = L.marker(latlng, {
+                myCustomId: this.idMarker,
+                icon: L.icon({
+                    iconSize: [30, 40],
+                    iconAnchor: [15, 30],
+                    popupAnchor: [0, -15],
+                    iconUrl: 'https://maps.vietmap.vn/live/assets/icon/marker-end.png',
+                    shadowUrl: 'leaflet/marker-shadow.png',
+                }),
+                draggable: true,
+            }).on('click', function (e: any) {
+                // console.log(e, 'e');
+
+            }).on('dragend', function (e: any) {
+                app.routerMap()
+                app.polylineMap.removeFrom(app.map)
+            }).addTo(this.map)
+
+            this.routerMap()
+            this.polylineMap.removeFrom(this.map)
+        }
+        this.map.closePopup();
+    }
 
     ngOnInit() {
         this.initMap();
     }
+
 
     constructor(private apiService: ApiService) { }
     public initMap(): void {
@@ -184,38 +229,59 @@ export class LeafletComponent implements OnInit {
         // }
 
         let a = this
+        let markerA = L.Icon.extend({
+            options: {
+                iconSize: [30, 40],
+                iconAnchor: [15, 30],
+                popupAnchor: [0, -15],
+                iconUrl: 'https://maps.vietmap.vn/live/assets/icon/marker-start.png',
+                shadowUrl: 'leaflet/marker-shadow.png',
+            }
+        })
+        let markerB = L.Icon.extend({
+            options: {
+                iconSize: [30, 40],
+                iconAnchor: [15, 30],
+                popupAnchor: [0, -15],
+                iconUrl: 'https://maps.vietmap.vn/live/assets/icon/marker-end.png',
+                shadowUrl: 'leaflet/marker-shadow.png',
+            }
+        })
 
         this.map.on('contextmenu', (e: any) => {
-            var idMarker = a.id += 1;
-            a.markers[idMarker] = L.marker([e.latlng.lat, e.latlng.lng], {
-                myCustomId: idMarker,
+            a.idMarker = a.id += 1;
+            
+            a.markerSelected = L.marker([e.latlng.lat, e.latlng.lng], {
+                myCustomId: a.idMarker,
                 icon: L.icon({
                     iconSize: [30, 40],
                     iconAnchor: [15, 30],
-                    iconUrl: 'https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png',
+                    popupAnchor: [0, -15],
+                    iconUrl: 'https://maps.vietmap.vn/live/assets/icon/map-marker.png',
                     shadowUrl: 'leaflet/marker-shadow.png',
                 }),
                 draggable: true,
-            }).on('click', function (e: any) {
+            }).addTo(this.featureGroup).on('click', function (e: any) {
                 // console.log(e, 'e');
 
             }).on('dragend', function (e: any) {
-                a.polylineMap.removeFrom(a.map)
-                a.routerMap()
-
+                // a.routerMap()
+                // a.polylineMap.removeFrom(a.map)
             }).addTo(a.map)
             if (a.startPoint == null && a.endPoint == null) {
                 a.startPoint = [e.latlng.lat, e.latlng.lng]
-                var pop = L.popup({ autoClose: true, closeOnClick: true })
-                    .setContent(
-                        `<p style="font-weight:bold">Thao tác trên địa điểm</p>
+                var pop = L.popup({
+                    autoClose: true,
+                    closeOnClick: true,
+                }).setContent(
+                    `<p style="font-weight:bold">Thao tác trên địa điểm</p>
                     <p id = "1" style="cursor: pointer">Đây là đâu?</p>
-                    <a id = "2" style="cursor: pointer">Dẫn đường từ đây</a>
+                    <p id = "2" style="cursor: pointer">Dẫn đường từ đây</p>
                     <p id = "3" style="cursor: pointer">Dẫn đường tới đây</p>
                     <p id = "4" style="cursor: pointer">Tìm kiếm xung quanh</p>
                     `);
-                a.markers[idMarker].bindPopup(pop);
-                a.markers[idMarker].openPopup();
+                    a.markerSelected.bindPopup(pop);
+                    a.markerSelected.openPopup();
 
             } else if (a.startPoint != null && a.endPoint == null) {
                 a.endPoint = [e.latlng.lat, e.latlng.lng]
@@ -223,13 +289,11 @@ export class LeafletComponent implements OnInit {
                     .setContent(
                         `<p style="font-weight:bold">Thao tác trên địa điểm</p>
                     <p id = "1" style="cursor: pointer">Đây là đâu?</p>
-                    <a id = "5" style="cursor: pointer">Thêm điểm đến</a>
+                    <p id = "5" style="cursor: pointer">Thêm điểm đến</p>
                     <p id = "4" style="cursor: pointer">Tìm kiếm xung quanh</p>
                     `)
-                a.markers[idMarker].bindPopup(pop);
-                a.markers[idMarker].openPopup();
-
-
+                    a.markerSelected.bindPopup(pop);
+                    a.markerSelected.openPopup();
             } else {
                 a.startPoint = a.endPoint
                 a.endPoint = [e.latlng.lat, e.latlng.lng]
@@ -237,11 +301,11 @@ export class LeafletComponent implements OnInit {
                     .setContent(
                         `<p style="font-weight:bold">Thao tác trên địa điểm</p>
                     <p id = "1" style="cursor: pointer">Đây là đâu?</p>
-                    <a id = "5" style="cursor: pointer">Thêm điểm đến</a>
+                    <p id = "5" style="cursor: pointer">Thêm điểm đến</p>
                     <p id = "4" style="cursor: pointer">Tìm kiếm xung quanh</p>
                     `)
-                a.markers[idMarker].bindPopup(pop);
-                a.markers[idMarker].openPopup();
+                    a.markerSelected.bindPopup(pop);
+                    a.markerSelected.openPopup();
             }
 
         })
@@ -271,15 +335,12 @@ export class LeafletComponent implements OnInit {
                 draggable: true,
             }).on('click', function (e: any) {
                 // console.log(e, 'e');
-
             }).on('dragend', function (e: any) {
-
-
                 a.routerMap()
                 a.polylineMap.removeFrom(a.map)
-
             }).addTo(a.map)
             a.routerMap();
+            a.polylineMap.removeFrom(a.map)
         })
 
         // for (let i = 0; i < 50; i++) {
@@ -344,47 +405,47 @@ export class LeafletComponent implements OnInit {
 
 
 
-        function routerMap2(param: string) {
-            a.apiService.routerMap2(param).pipe(
-                catchError((err, caught) => {
-                    return (err);
-                })
-            ).subscribe((res: any) => {
-                if (res.code == "OK") {
-                    let polyUtil = require('polyline-encoded');
-                    let latlngs = [];
-                    if (res.paths[0].points != undefined) {
-                        latlngs = polyUtil.decode(res.paths[0].points);
-                    }
-                    a.polylineMap = L.polyline([latlngs]).addTo(a.map);
+        // function routerMap2(param: string) {
+        //     a.apiService.routerMap2(param).pipe(
+        //         catchError((err, caught) => {
+        //             return (err);
+        //         })
+        //     ).subscribe((res: any) => {
+        //         if (res.code == "OK") {
+        //             let polyUtil = require('polyline-encoded');
+        //             let latlngs = [];
+        //             if (res.paths[0].points != undefined) {
+        //                 latlngs = polyUtil.decode(res.paths[0].points);
+        //             }
+        //             a.polylineMap = L.polyline([latlngs]).addTo(a.map);
 
-                }
-            });
-        }
+        //         }
+        //     });
+        // }
     }
 
 
     routerMap() {
         this.map.closePopup();
         //hàm này để tạo ra list điểm cần routing
-        let listMarker = [];
+        this.listMarker = [];
         let keys = Object.keys(this.markers);
         for (let key of keys) {
-            listMarker.push(this.markers[key].getLatLng());
+            this.listMarker.push(this.markers[key].getLatLng());
         }
-        console.log(listMarker)
+        console.log(this.listMarker)
         let param = ''
         let paramStart = ''
         let paramEnd = ''
 
 
         //hàm này dùng để nối điểm routing lại và kéo thả trên map
-        for (let i = 0; i < listMarker.length; i++) {
+        for (let i = 0; i < this.listMarker.length; i++) {
             if (i == 0) {
-                paramStart = 'point=' + [listMarker[0].lat, listMarker[0].lng].toString()
+                paramStart = 'point=' + [this.listMarker[0].lat, this.listMarker[0].lng].toString()
 
             } else {
-                paramEnd += '&point=' + [listMarker[i].lat, listMarker[i].lng].toString()
+                paramEnd += '&point=' + [this.listMarker[i].lat, this.listMarker[i].lng].toString()
             }
             //paramEnd += '&point=' + [listMarker[i].lat, listMarker[i].lng].toString()
         }
@@ -398,10 +459,14 @@ export class LeafletComponent implements OnInit {
             })
         ).subscribe((res: any) => {
             if (res.code == "OK") {
+                console.log(res, 'res');
+
                 let polyUtil = require('polyline-encoded');
                 let latlngs = [];
-                if (res.paths[0].points != undefined) {
-                    latlngs = polyUtil.decode(res.paths[0].points);
+                if (res.paths != '') {
+                    if (res.paths[0].points != undefined) {
+                        latlngs = polyUtil.decode(res.paths[0].points);
+                    }
                 }
                 this.polylineMap = L.polyline([latlngs]).addTo(this.map);
             }
