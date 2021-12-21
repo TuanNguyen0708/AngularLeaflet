@@ -9,8 +9,22 @@
         </p-sidebar>
         
         <div style="padding: 5px; margin: 5px; background: #2196f3; display: flex; align-items: center;">
+          
             <p-sidebar [(visible)]="visibleSidebar3" position="top" class="sidebarTop" style="z-index: 2001;">
-                <h3>Top Sidebar</h3>
+                <p style="margin-left: 40px;">Điểm Bắt Đầu</p>
+                <p-autoComplete [showEmptyMessage]="true" [suggestions]="dataSearch" (completeMethod)="onChangeSearch($event)" field="name" [minLength]="1" (onSelect)="selectAddStart($event)"></p-autoComplete>
+
+                <p style="margin-left: 40px;">Điểm Kết thúc</p>
+                <p-autoComplete [showEmptyMessage]="true" [suggestions]="dataSearch" (completeMethod)="onChangeSearch($event)" field="name" [minLength]="1" (onSelect)="selectAddEnd($event)"></p-autoComplete>
+                <hr>
+                <h1 style="margin:0 40px;">{{distanceWay.toFixed(2)}}km </h1>
+  
+               <ul>
+                   <li *ngFor="let route of routes" style="display: flex; justify-content: space-between;">
+                       <img [src]="route.sign" alt="" style="width: 30px; height: 40px;">
+                       <p style="width: 60%;">{{route.resultWay}}</p>
+                   </li>
+               </ul>
             </p-sidebar>
            
             <p-button type="button" class="p-mr-2" (click)="visibleSidebar1 = true" icon="pi pi-align-justify" ></p-button>
@@ -23,6 +37,7 @@
             </span>
         </div>
     </div>
+    
 <div style="z-index: 2000; position: absolute; bottom: 40px; right: 16px;">
     <app-minimap   [map] = "map" (changeBaseMap)="changeBaseMap($event)" ></app-minimap>
 </div>

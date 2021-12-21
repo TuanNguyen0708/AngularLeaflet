@@ -1,8 +1,8 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 // import * as L from 'leaflet';
 import { catchError } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
-
+import Typedirection from '..//../assets/typedirection.json';
 declare var require: any
 declare let L: any;
 
@@ -42,6 +42,13 @@ export class LeafletComponent implements OnInit {
     markers: any = {};
     idMarker: any;
     listMarker: any;
+    resultWay: string = '';
+    routes:any[] = [];
+    distanceWay:number = 0;
+    timeWay:number = 0;
+    hours :number = 0;
+    minutes:number = 0
+    icon:string='';
 
     @HostListener("contextmenu", ["$event"])
     public onClick(event: any): void {
@@ -107,7 +114,7 @@ export class LeafletComponent implements OnInit {
     }
 
 
-    constructor(private apiService: ApiService) { }
+    constructor(private apiService: ApiService,private cdr: ChangeDetectorRef) { }
     public initMap(): void {
         //hàm này để tạo layer
         this.VietMap = L.tileLayer('https://maps.vietmap.vn/tm/{z}/{x}/{y}@2x.png?apikey=95f852d9f8c38e08ceacfd456b59059d0618254a50d3854c', {
@@ -433,7 +440,7 @@ export class LeafletComponent implements OnInit {
         for (let key of keys) {
             this.listMarker.push(this.markers[key].getLatLng());
         }
-        console.log(this.listMarker)
+      
         let param = ''
         let paramStart = ''
         let paramEnd = ''
@@ -450,8 +457,20 @@ export class LeafletComponent implements OnInit {
             //paramEnd += '&point=' + [listMarker[i].lat, listMarker[i].lng].toString()
         }
         param = paramStart + paramEnd
-        console.log(param, 'param');
 
+
+        let mapping:Map<Number,{value:number,icon:string,des:string} >=new Map<Number,{value:number,icon:string,des:string} >();
+        //init value
+        // mapping.set(-98,"assets/img/right.png");
+        // mapping.set(1,"assets/img/right.png");
+        // mapping.set(2,"assets/img/right.png");
+        // mapping.set(3,"assets/img/right.png");
+        // mapping.set(-98,"assets/img/right.png");
+        Typedirection.forEach(element => {
+            mapping.set(element.value,{value:element.value,icon:element.icon,des:element.des})
+        });
+
+        let routes:Array<{resultWay:string,distanceWay:number,timeWay:number,sign:string}>=new Array<{resultWay:string,distanceWay:number,timeWay:number,sign:string}>();
         //call api
         this.apiService.routerMap2(param).pipe(
             catchError((err, caught) => {
@@ -459,7 +478,31 @@ export class LeafletComponent implements OnInit {
             })
         ).subscribe((res: any) => {
             if (res.code == "OK") {
-                console.log(res, 'res');
+                let driverWay = res.paths[0].instructions
+                for(let i = 0; i < driverWay.length; i++) {
+                    // this.resultWay +=  driverWay[i].text + ` <br> `
+                    this.distanceWay += driverWay[i].distance/1000
+                    this.timeWay += driverWay[i].time;
+                    let icon= ''
+                    Typedirection.map(e=>{
+                        if(e.value == driverWay[i].sign){
+                            icon = e.icon;
+                        }
+                    })
+                   /*  if(mapping.has(driverWay[i].sign)){
+                        this.resultWay +=  driverWay[i].text
+                        this.icon = mapping.get(driverWay[i].sign)?.icon??"";
+
+                        
+                    }else{
+                        this.icon="";
+                    } */
+                    var route={resultWay:driverWay[i].text,distanceWay:driverWay[i].distance/1000,timeWay:driverWay[i].time,sign:icon};
+                    this.routes.push(route);                    
+                }
+
+                console.log(this.routes,'routes');
+                this.cdr.detectChanges()
 
                 let polyUtil = require('polyline-encoded');
                 let latlngs = [];
@@ -499,6 +542,7 @@ export class LeafletComponent implements OnInit {
     }
 
     onChangeSearch(event: any) {
+        
         let res = event.query
         this.apiService.searchApi(res).pipe(
             catchError((err, caught) => {
@@ -506,6 +550,7 @@ export class LeafletComponent implements OnInit {
             })
         ).subscribe((res: any) => {
             if (typeof res.Code == 'undefined') {
+                
                 let dat = {
                     refPlaceId: res.refPlaceId,
                     name: res.label,
@@ -529,6 +574,8 @@ export class LeafletComponent implements OnInit {
                     this.dataSearch = data;
                 }
             }
+            
+
         })
 
     }
@@ -541,6 +588,81 @@ export class LeafletComponent implements OnInit {
                 console.log(res);
                 localStorage.setItem('dataMarker', JSON.stringify(res));
                 this.map.panTo([res.latitude, res.longitude])
+                L.marker([res.latitude,res.longitude], {
+                    icon: L.icon({
+                        iconSize: [30, 40],
+                        iconAnchor: [15, 30],
+                        iconUrl: 'https://chiangmaibuddy.com/wp-content/uploads/2015/12/1460972177-map_marker-red1.png',
+                        shadowUrl: 'leaflet/marker-shadow.png',
+                    }),
+                    draggable: true,
+                }).addTo(this.map)
+            }
+        });
+
+    }
+
+    selectAddStart(event: any) {
+        let refPlaceId = event.refPlaceId;
+        this.apiService.place(refPlaceId).pipe(
+            catchError(err => (err))
+        ).subscribe((res: any) => {
+            if (res !== null) {
+                this.map.removeLayer(this.featureGroup)
+                this.polylineMap.removeFrom(this.map)
+                console.log(res);
+                localStorage.setItem('dataMarker', JSON.stringify(res));
+                this.map.panTo([res.latitude, res.longitude])
+                this.markers[this.id += 1] = L.marker([res.latitude, res.longitude], {
+                    myCustomId: this.id += 1,
+                    icon: L.icon({
+                        iconSize: [30, 40],
+                        iconAnchor: [15, 30],
+                        iconUrl: 'https://maps.vietmap.vn/live/assets/icon/marker-start.png',
+                        shadowUrl: 'leaflet/marker-shadow.png',
+                    }),
+                    draggable: true,
+                }).addTo(this.featureGroup).on('click', function (e: any) {
+                    // console.log(e, 'e');
+                }).on('dragend', (e: any)=> {
+                    this.polylineMap.removeFrom(this.map)
+                    this.routerMap()
+                }).addTo(this.map)
+                this.polylineMap.removeFrom(this.map)
+                this.routerMap();
+            }
+        });
+
+    }
+
+    selectAddEnd(event: any) {
+        let refPlaceId = event.refPlaceId;
+        this.apiService.place(refPlaceId).pipe(
+            catchError(err => (err))
+        ).subscribe((res: any) => {
+            if (res !== null) {
+                this.map.removeLayer(this.featureGroup)
+                this.polylineMap.removeFrom(this.map)
+                console.log(res);
+                localStorage.setItem('dataMarker', JSON.stringify(res));
+                this.map.panTo([res.latitude, res.longitude])
+                this.markers[this.id += 1] = L.marker([res.latitude, res.longitude], {
+                    myCustomId: this.id += 1,
+                    icon: L.icon({
+                        iconSize: [30, 40],
+                        iconAnchor: [15, 30],
+                        iconUrl: 'https://maps.vietmap.vn/live/assets/icon/marker-end.png',
+                        shadowUrl: 'leaflet/marker-shadow.png',
+                    }),
+                    draggable: true,
+                }).addTo(this.featureGroup).on('click', function (e: any) {
+                    // console.log(e, 'e');
+                }).on('dragend', (e: any)=> {
+                    this.polylineMap.removeFrom(this.map)
+                    this.routerMap()
+                }).addTo(this.map)
+                this.polylineMap.removeFrom(this.map)
+                this.routerMap();
             }
         });
 

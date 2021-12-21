@@ -1,0 +1,94 @@
+[
+    {
+    "value":-98,
+    "des":"an U-turn without the knowledge if it is a right or left U-turn",
+    "vn":"Quay đầu xe",
+    "icon":"assets/img/u_turn.png"
+},{
+    "value":-8,
+    "des":"a left U-turn",
+    "vn":"Rẽ trái",
+    "icon":"assets/img/u_turn_left.png"
+},{
+    "value":-7,
+    "des":"keep left",
+    "vn":"Tiếp tục bên trái",
+    "icon":"assets/img/keep_left.png"
+},{
+    "value":-6,
+    "des":"not yet used: leave roundabout",
+    "vn":"Rời khỏi bùng binh",
+    "icon":"assets/img/continue.png"
+},{
+    "value":-3,
+    "des":"turn sharp left",
+    "vn":"Rẽ trái",
+    "icon":"assets/img/sharp_left.png"
+},{
+    "value":-2,
+    "des":"turn left",
+    "vn":"Rẽ trái",
+    "icon":"assets/img/left.png"
+},{
+    "value":-1,
+    "des":"turn slight left",
+    "vn":"Rẽ trái",
+    "icon":"assets/img/slight_left.png"
+},
+{
+    "value":0,
+    "des":"continue on street",
+    "vn":"Tiếp tục",
+    "icon":"assets/img/continue.png"
+},
+{
+    "value":1,
+    "des":"turn slight righ",
+    "vn":"Rẽ phải",
+    "icon":"assets/img/slight_right.png"
+},
+{
+    "value":2,
+    "des":"turn right",
+    "vn":"Rẽ phải",
+    "icon":"assets/img/right.png"
+},
+{
+    "value":3,
+    "des":"turn sharp right",
+    "vn":"Rẽ phải",
+    "icon":"assets/img/sharp_right.png"
+},
+{
+    "value":4,
+    "des":"the finish instruction before the last point",
+    "vn":"Hướng dẫn kết thúc trước điểm cuối cùng",
+    "icon":"assets/img/finish.png"
+},
+{
+    "value":5,
+    "des":"the instruction before a via point",
+    "vn":"Hướng dẫn trước một điểm qua",
+    "icon":"assets/img/continue.png"
+},
+{
+    "value":6,
+    "des":"the instruction before entering a roundabout",
+    "vn":"Hướng dẫn trước khi vào bùng binh",
+    "icon":"assets/img/continue.png"
+},
+{
+    "value":7,
+    "des":"keep right",
+    "vn":"Tiếp tục bên phải",
+    "icon":"assets/img/right.png"
+},
+{
+    "value":8,
+    "des":"a right U-turn",
+    "vn":"Rẽ phải",
+    "icon":"assets/img/u_turn_right.png"
+}
+]
+
+	
